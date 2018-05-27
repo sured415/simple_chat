@@ -63,8 +63,6 @@ int main(int argc, char* argv[]) {
 	if (listen(s, 5) == SOCKET_ERROR) {														// listen
 		cout << "Listen error" << endl;
 	}
-
-	cout << "연결 중..." << endl;
 	
 	while (1) {
 		int c_addr_size = sizeof(client_addr);
@@ -76,7 +74,7 @@ int main(int argc, char* argv[]) {
 		clients.push_back(c);
 		char ip[16];
 		inet_ntop(AF_INET, &client_addr.sin_addr, ip, sizeof(ip));
-		cout << ip << " 접속" << endl;
+		cout << ip << " connect!" << endl;
 
 		HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, client_chat, (void*)&c, 0, NULL);
 	}
