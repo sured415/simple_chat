@@ -16,16 +16,20 @@ unsigned WINAPI client_chat(void* a) {
 	SOCKET c = *(SOCKET*)a;
 	list<SOCKET>::iterator iter;
 
-	char c_message[1024];
+	char c_message[1024] = {'\0',};
+	char message_t[1032] = {'\0',};
 
 	while (recv(c, c_message, sizeof(c_message), 0) > 0) {
 		for (iter = clients.begin(); iter != clients.end(); ++iter) {
 			if (*iter != c) {
-				send(*iter, c_message, sizeof(c_message), 0);
+//				send(*iter, c_message, sizeof(c_message), 0);
+				sprintf_s(message_t, "%d >> %s", c, c_message);
+				send(*iter, message_t, sizeof(message_t), 0);
 			}
 		}
 	}
 
+	cout << "(" << c << ") Á¾·á" << endl;
 	clients.remove(c);
 	closesocket(c);
 	return 0;
@@ -74,8 +78,7 @@ int main(int argc, char* argv[]) {
 		clients.push_back(c);
 		char ip[16];
 		inet_ntop(AF_INET, &client_addr.sin_addr, ip, sizeof(ip));
-		cout << ip << " connect!" << endl;
-
+		cout << ip << " (" << c << ") connect!" << endl;
 		HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, client_chat, (void*)&c, 0, NULL);
 	}
 
