@@ -10,24 +10,26 @@ using namespace std;
 
 unsigned WINAPI send(void* sock) {
 	SOCKET s = *(SOCKET*)sock;
-	char send_msg[1024];
+	while (1) {
+		char send_msg[1024];
 
-	cin.getline(send_msg, 1024);
-	if (strcmp(send_msg, "exit") == 0) {
-		closesocket(s);
-		exit(0);
+		cin.getline(send_msg, 1024);
+		if (strcmp(send_msg, "exit") == 0) {
+			closesocket(s);
+			exit(0);
+		}
+		send(s, send_msg, sizeof(send_msg), 0);
 	}
-	send(s, send_msg, sizeof(send_msg), 0);
-
 	return 0;
 }
 
 unsigned WINAPI recv(void* sock) {
 	SOCKET s = *(SOCKET*)sock;
-	char recv_msg[1024];
-
-	recv(s, recv_msg, sizeof(recv_msg), 0);
-	cout << recv_msg << endl;
+	char recv_msg[1032];
+	while (1) {
+		recv(s, recv_msg, sizeof(recv_msg), 0);
+		cout << recv_msg << endl;
+	}
 	return 0;
 }
 
@@ -64,12 +66,12 @@ int main(int argc, char* argv[]) {
 	}
 
 	cout << argv[1] << endl;
-	while (1) {
-		HANDLE send_Thread = (HANDLE)_beginthreadex(NULL, 0, send, (void*)&s, 0, NULL);
-		HANDLE recv_Thread = (HANDLE)_beginthreadex(NULL, 0, recv, (void*)&s, 0, NULL);
+	
+	HANDLE send_Thread = (HANDLE)_beginthreadex(NULL, 0, send, (void*)&s, 0, NULL);
+	HANDLE recv_Thread = (HANDLE)_beginthreadex(NULL, 0, recv, (void*)&s, 0, NULL);
 
-		WaitForSingleObject(send_Thread, INFINITE);
-	}
+	WaitForSingleObject(send_Thread, INFINITE);
+	WaitForSingleObject(recv_Thread, INFINITE);
 
 	closesocket(s);
 	WSACleanup();
